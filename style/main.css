@@ -1,0 +1,84 @@
+:root{
+  --bg:#000000; --card:#252424; --text:#e5e7eb; --muted:#94a3b8;
+  --brand:#000000; --brand-2:#ffffff; --border:#030a14; --radius:20px;
+  --maxw:1000px;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; background:linear-gradient(180deg,#000000,#000000 35%);
+  color:var(--text); font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif;
+}
+.page{max-width:var(--maxw); margin:120px auto; padding:160px}
+.card{background:var(--card); border:2px solid var(--border); border-radius:var(--radius); padding:18px}
+.hero{display:grid; gap: 2pxpx; grid-template-columns:0.8fr .8fr; align-items:center}
+h1{margin:0 0 8px}
+.bullets{margin:0; padding-left:18px; color:var(--muted); line-height:1.7}
+.actions{margin-top:12px}
+.btn{display:inline-block; padding:10px 16px; border-radius:12px; border:1px solid var(--border); background:#1a2438; color:var(--text); text-decoration:none}
+.btn.primary{background:var(--brand); border-color:var(--brand-2)}
+@media (max-width:900px){ .hero{grid-template-columns:1fr} }
+
+/* Uniform weapon preview area */
+.wep-figure{
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;     /* same box for all images */
+  overflow: hidden;         /* hide any overflow */
+  border-radius: 12px;
+  background: #e6dfd3;      /* beige bg to match your PNGs (tweak as you like) */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wep-img{
+  width: 100%;
+  height: 100%;
+  object-fit: contain;       /* keep original proportions; never overflow */
+  display: block;
+  pointer-events: none;
+}
+
+/* Card polish (optional) */
+.wep-card{ padding:16px; border:1px solid rgba(255,255,255,.08); border-radius:16px; }
+.wep-card h3{ margin:12px 0 10px; }
+/* uniform weapon preview area */
+.wep-figure{
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #e6dfd3;  /* beige behind transparent PNGs */
+  display:flex; align-items:center; justify-content:center;
+}
+.wep-img{
+  width:100%; height:100%; object-fit:contain; display:block;
+}
+
+/* optional: dim disabled buttons if you ever use disabled later */
+.btn[disabled]{ opacity:.5; cursor:not-allowed; }
+
+/* 預設按鈕顏色（亮一點） */
+.btn {
+  background-color: #1f2937;   /* 深藍灰 */
+  color: #e5e7eb;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+/* 滑鼠移上去時再亮一點 */
+.btn:hover {
+  background-color: #2d3748;
+  transform: scale(1.03);
+}
+
+/* 當按鈕被選中（active）時變暗 */
+.btn.active {
+  background-color: #111827;
+  color: #9ca3af;
+  transform: scale(0.97);
+}
+
+
+

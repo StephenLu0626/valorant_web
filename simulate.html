@@ -1,0 +1,270 @@
+
+
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Step 2 – Player stats & accuracy</title>
+  <link rel="stylesheet" href="style/main.css" />
+  <style>
+    input[type="number"],
+    select{
+      width:100%;
+      box-sizing:border-box;
+    }
+
+    .page { max-width: 900px; margin: 80px auto; }
+
+    .summary-bar{
+      background:#0f172a;
+      border-radius:12px;
+      padding:10px 14px;
+      margin-bottom:16px;
+      border:1px solid #1f2937;
+    }
+    .summary-bar span{ margin-right:16px; }
+
+    .two-col{
+      display:grid;
+      grid-template-columns: repeat(auto-fit,minmax(260px,1fr));
+      gap:16px;
+      margin-top:12px;
+    }
+
+    .card{
+      background:#111827;
+      border-radius:16px;
+      padding:14px 16px;
+      box-shadow:0 2px 10px rgba(0,0,0,.4);
+    }
+
+    .card h3{
+      margin-top:0;
+      margin-bottom:8px;
+    }
+
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      margin-bottom:10px;
+    }
+
+    .field label{
+      font-size:0.9rem;
+      color:#9ca3af;
+    }
+
+    .field-row{
+      display:flex;
+      gap:8px;
+    }
+
+    .field-row > *{
+      flex:1;
+    }
+
+    .small-hint{
+      font-size:0.8rem;
+      color:#6b7280;
+    }
+
+    .radio-row{
+      display:flex;
+      gap:16px;
+      align-items:center;
+      margin-top:6px;
+    }
+
+    .btn-bar{
+      display:flex;
+      justify-content:space-between;
+      margin-top:16px;
+      gap:8px;
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+  <h2>Set HP / Armor / Accuracy / Reaction / Ping / Peeker</h2>
+
+  <!-- Summary bar -->
+  <div class="summary-bar">
+    <span id="sumWeaponA">A: Weapon – (not set)</span>
+    <span id="sumWeaponB">B: Weapon – (not set)</span>
+    <span id="sumDistance">Distance: (not set)</span>
+  </div>
+
+  <div class="two-col">
+    <!-- Player A -->
+    <section class="card">
+      <h3>Player A</h3>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="hpA">HP</label>
+          <select id="hpA">
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100" selected>100</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="armorA">Armor</label>
+          <select id="armorA">
+            <option value="0">No Armor</option>
+            <option value="25">Light (25)</option>
+            <option value="50" selected>Heavy (50)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="accPresetA">Accuracy model</label>
+        <select id="accPresetA">
+          <option value="Iron" selected>Iron</option>
+          <option value="Gold">Gold</option>
+          <option value="Radiant">Radiant</option>
+          <option value="Custom">Custom</option>
+        </select>
+
+        <!-- Custom accuracy panel A -->
+        <div id="customAccA" class="field" style="display:none; margin-top:8px;">
+          <label>Custom accuracy (Player A)</label>
+          <div class="two-col">
+            <div>
+              <label for="customHeadA">Head %</label>
+              <input id="customHeadA" type="number" min="0" max="100" value="20">
+            </div>
+            <div>
+              <label for="customBodyA">Body %</label>
+              <input id="customBodyA" type="number" min="0" max="100" value="45">
+            </div>
+            <div>
+              <label for="customLeg_and_armA">Leg / Arm %</label>
+              <input id="customLeg_and_armA" type="number" min="0" max="100" value="15">
+            </div>
+          </div>
+          <small>Remaining probability is considered miss %</small>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="muA">Reaction μ (ms)</label>
+          <input id="muA" type="number" value="250" min="0" step="1">
+        </div>
+        <div class="field">
+          <label for="sigmaA">Reaction σ (ms)</label>
+          <input id="sigmaA" type="number" value="20" min="0" step="1">
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="pingA">Ping (ms)</label>
+        <input id="pingA" type="number" value="30" min="0" step="1">
+      </div>
+    </section>
+
+    <!-- Player B -->
+    <section class="card">
+      <h3>Player B</h3>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="hpB">HP</label>
+          <select id="hpB">
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100" selected>100</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="armorB">Armor</label>
+          <select id="armorB">
+            <option value="0">No Armor</option>
+            <option value="25">Light (25)</option>
+            <option value="50" selected>Heavy (50)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="accPresetB">Accuracy model</label>
+        <select id="accPresetB">
+          <option value="Iron">Iron</option>
+          <option value="Gold">Gold</option>
+          <option value="Radiant">Radiant</option>
+          <option value="Custom">Custom</option>
+        </select>
+
+        <!-- Custom accuracy panel B -->
+        <div id="customAccB" class="field" style="display:none; margin-top:8px;">
+          <label>Custom accuracy (Player B)</label>
+          <div class="two-col">
+            <div>
+              <label for="customHeadB">Head %</label>
+              <input id="customHeadB" type="number" min="0" max="100" value="20">
+            </div>
+            <div>
+              <label for="customBodyB">Body %</label>
+              <input id="customBodyB" type="number" min="0" max="100" value="45">
+            </div>
+            <div>
+              <label for="customLeg_and_armB">Leg / Arm %</label>
+              <input id="customLeg_and_armB" type="number" min="0" max="100" value="15">
+            </div>
+          </div>
+          <small>Remaining probability is considered miss %</small>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="muB">Reaction μ (ms)</label>
+          <input id="muB" type="number" value="270" min="0" step="1">
+        </div>
+        <div class="field">
+          <label for="sigmaB">Reaction σ (ms)</label>
+          <input id="sigmaB" type="number" value="20" min="0" step="1">
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="pingB">Ping (ms)</label>
+        <input id="pingB" type="number" value="45" min="0" step="1">
+      </div>
+    </section>
+  </div>
+
+  <!-- Shared settings -->
+  <section class="card" style="margin-top:16px">
+    <div class="field">
+      <label>Peeker advantage side</label>
+      <div class="radio-row">
+        <label><input type="radio" name="peekerSide" value="A" checked> A</label>
+        <label><input type="radio" name="peekerSide" value="B"> B</label>
+      </div>
+      <span class="small-hint">Peeker advantage: the peeker sees the opponent earlier.</span>
+    </div>
+
+    <div class="field">
+      <label for="trials">Trials (number of simulated duels)</label>
+      <input id="trials" type="number" value="1000" min="1000"  step="100">
+    </div>
+
+    <div class="btn-bar">
+      <a class="btn" href="loadout.html">← Back to weapon selection</a>
+      <button id="runSim" class="btn primary">Run simulation</button>
+    </div>
+  </section>
+</main>
+
+
+<script src="scripts/weaponBase.js"></script>
+<script type="module" src="scripts/step2.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Choose weapons — Valorant Duel Lab</title>
+  <link rel="stylesheet" href="style/main.css" />
+
+
+<script type="module">
+  import { getState, setState } from "./scripts/state.js";
+
+  // 每次進入 loadout 頁面時重置武器選擇
+  const s = getState();
+  setState({
+    ...s,
+    weaponA: null,
+    weaponB: null,
+    distance_m: null,
+  });
+</script>
+
+
+  <style>
+    /* 小強化：武器卡片 & 選擇狀態列 */
+    .wep-grid{ display:grid; gap:16px; grid-template-columns: repeat(3, minmax(0,1fr)); }
+    .wep-card h3{ margin:8px 0 6px }
+    .wep-img{ max-height:140px; object-fit:contain; margin:0 auto }
+    .bar{ position:sticky; top:0; z-index:5; margin-bottom:12px;
+          background:rgba(17,24,39,.85); border:1px solid #1f2937; border-radius:12px; padding:10px 12px; }
+    .bar span{ margin-right:14px }
+    @media (max-width:900px){ .wep-grid{ grid-template-columns:1fr 1fr } }
+  </style>
+
+  <script type="module">
+  import { getState, setState } from "./scripts/state.js";
+  // helper
+  
+  const $ = (id) => document.getElementById(id);
+ 
+
+  // temp list (add more weapons by copying a line)
+  // 類別固定使用這些英文 key：pistol / smg / rifle / lmg / sniper
+const WEAPONS = [
+  { name:"Classic",  type:"pistol", img:"assets/weapons/Classic.png", },
+  { name:"Shorty",   type:"pistol", img:"assets/weapons/Shorty.png"   },
+  { name:"Frenzy",   type:"pistol", img:"assets/weapons/Frenzy.png"   },
+  { name:"Ghost",    type:"pistol", img:"assets/weapons/Ghost.png"    },
+  { name:"Sheriff",  type:"pistol", img:"assets/weapons/Sheriff.png"  },
+  { name:"Judge",    type:"shotgun",img:"assets/weapons/Judge.png"    },
+  { name:"Bucky",    type:"shotgun",img:"assets/weapons/Bucky.png"    },
+  { name:"Stinger",  type:"smg",    img:"assets/weapons/Stinger.png"  },
+  { name:"Spectre",  type:"smg",    img:"assets/weapons/Spectre.png"  },
+  { name:"Bulldog",  type:"rifle",  img:"assets/weapons/Bulldog.png"  },
+  { name:"Guardian", type:"rifle",  img:"assets/weapons/Guardian.png" },
+  { name:"Vandal",   type:"rifle",  img:"assets/weapons/Vandal.png"   },
+  { name:"Phantom",  type:"rifle",  img:"assets/weapons/Phantom.png"  },
+  { name:"Ares",     type:"lmg",    img:"assets/weapons/Ares.png"     },
+  { name:"Odin",     type:"lmg",    img:"assets/weapons/Odin.png"     },
+  { name:"Marshal",  type:"sniper", img:"assets/weapons/Marshal.png"  },
+  { name:"Outlaw",   type:"sniper", img:"assets/weapons/Outlaw.png"  },
+  { name:"Operator", type:"sniper", img:"assets/weapons/Operator.png" },
+];
+
+ window.WEAPONS = WEAPONS;
+
+  // keep references to every card so we can repaint
+  const cardsByName = new Map();
+  let currentFilter = "all"; // all / pistol / smg / rifle / lmg / sniper
+
+  // rule: A & B can be same; each player only holds one at a time
+  function selectFor(player, name){
+    const s = getState();
+    const key = player === "A" ? "weaponA" : "weaponB";
+    setState({ ...s, [key]: name });   // overwrite that player's weapon
+    renderSelections();
+  }
+
+  // draw status bar + buttons from state
+  function renderSelections(){
+    const s = getState();
+    $("selA").textContent = s.weaponA ? `A: ${s.weaponA}` : "A: Not Selected";
+    $("selB").textContent = s.weaponB ? `B: ${s.weaponB}` : "B: Not Selected";
+    $("selD").textContent = s.distance_m ? `Distance: ${s.distance_m} m` : "Distance : Not Set";
+
+    cardsByName.forEach((card, name)=>{
+      const isA = s.weaponA === name;
+      const isB = s.weaponB === name;
+      const btnA = card.querySelector(".pick-a");
+      const btnB = card.querySelector(".pick-b");
+      btnA.textContent = isA ? "Selected for A" : "Select for A";
+      btnB.textContent = isB ? "Selected for B" : "Select for B";
+      btnA.classList.toggle("active", isA);
+      btnB.classList.toggle("active", isB);
+
+      // do NOT disable anything — you want to be able to change freely
+    });
+  }
+
+  // build weapon cards
+  function mountWeapons(){
+  const grid = $("weapons");
+  grid.innerHTML = "";
+  cardsByName.clear();
+
+  const list = (currentFilter === "all")
+    ? WEAPONS
+    : WEAPONS.filter(w => w.type === currentFilter);
+
+  list.forEach(w=>{
+    const card = document.createElement("div");
+    card.className = "card wep-card";
+    card.innerHTML = `
+      <div class="wep-figure">
+        <img class="wep-img" src="${w.img}" alt="${w.name}">
+      </div>
+      <h3 class="center" style="margin:12px 0 10px">${w.name}</h3>
+      <div class="center" style="display:flex; gap:8px; justify-content:center; margin-top:8px">
+        <button class="btn pick-a">Select for A</button>
+        <button class="btn pick-b">Select for B</button>
+      </div>
+    `;
+    card.querySelector(".pick-a").addEventListener("click", ()=> selectFor("A", w.name));
+    card.querySelector(".pick-b").addEventListener("click", ()=> selectFor("B", w.name));
+
+    cardsByName.set(w.name, card);
+    grid.appendChild(card);
+  });
+
+  renderSelections();
+}
+
+
+  // distance select (simple version for now)
+  // distance input：使用者自己輸入距離（公尺）
+function mountDistance(){
+  const distInput = $("distance");
+  const s = getState();
+
+  // 如果 state 裡已經有距離，就顯示出來
+  if (s.distance_m !== undefined && s.distance_m !== null) {
+    distInput.value = s.distance_m;
+  }
+
+  // 輸入時更新 state + bar 上的文字
+  distInput.addEventListener("input", () => {
+    const raw = parseFloat(distInput.value);
+    const value = isNaN(raw) ? 0 : raw;
+
+    setState({ ...getState(), distance_m: value });
+    renderSelections();
+  });
+}
+
+
+  // next page guard
+  function verifyAndNext(){
+    const s = getState();
+    if(!s.weaponA || !s.weaponB) return alert("Please select a weapon for both A and B.");
+    if(!s.distance_m)            return alert("Please select a common distance.");
+    location.href = "simulate.html";
+  }
+
+  // boot
+  window.addEventListener("DOMContentLoaded", ()=>{
+    mountWeapons();
+    mountDistance();
+    $("next").addEventListener("click", verifyAndNext);
+    // 綁定類別 tabs
+  document.querySelectorAll(".tab").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    // 切換 active 樣式
+    document.querySelectorAll(".tab").forEach(b=> b.classList.remove("active"));
+    btn.classList.add("active");
+    // 設定篩選並重畫
+    currentFilter = btn.dataset.type;
+    mountWeapons();
+  });
+});
+
+  });
+</script>
+
+</head>
+<body>
+  <main class="page">
+    <h2>Choose weapon and common distance</h2>
+
+    
+    <!-- 選擇狀態列 -->
+    <div class="bar">
+      <span id="selA">A: Not Selected</span>
+      <span id="selB">B: Not Selected</span>
+      <span id="selD">Distance：Not Set</span>
+    </div>
+
+    <!-- 類別篩選 -->
+    <div class="card" style="margin:12px 0; display:flex; gap:8px; flex-wrap:wrap">
+    <button class="btn tab active" data-type="all">All</button>
+    <button class="btn tab" data-type="pistol">Pistol</button>
+    <button class="btn tab" data-type="smg">SMG</button>
+    <button class="btn tab" data-type="shotgun">Shotgun</button>
+    <button class="btn tab" data-type="rifle">Rifle</button>
+    <button class="btn tab" data-type="lmg">LMG</button>
+    <button class="btn tab" data-type="sniper">Sniper</button>
+    </div>
+
+    <!-- 武器網格 -->
+    <div id="weapons" class="wep-grid"></div>
+
+    <!-- 距離 -->
+     <div class="card" style="margin-top:16px">
+  <div class="row">
+    <label for="distance">Common Distance (m)</label>
+    <input
+      id="distance"
+      type="number"
+      min="0"
+      max="100"
+      step="0.5"
+      value="0"
+      style="width:120px"
+    />
+    <span class="hint">Both sides must use the same distance</span>
+  </div>
+  <div class="center" style="margin-top:8px">
+    <a class="btn" href="index.html">Return to home page</a>
+    <button id="next" class="btn primary">Next</button>
+  </div>
+</div>
+
+  </main>
+</body>
+</html>
+

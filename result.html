@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Simulation Results</title>
+  <link rel="stylesheet" href="style/main.css" />
+  <style>
+    .page { max-width: 900px; margin: 80px auto; }
+    .card{
+      background:#111827;
+      border-radius:16px;
+      padding:18px 20px;
+      box-shadow:0 2px 10px rgba(0,0,0,.4);
+      color:#e5e7eb;
+    }
+    h2{ margin-bottom:16px; }
+    .row{ margin-bottom:8px; }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <h2>Simulation Results</h2>
+
+    <section class="card">
+      <div class="row"><strong>Trials:</strong> <span id="resTrials">-</span></div>
+
+      <h3>Win Rates</h3>
+      <div class="row">A wins: <span id="resWinA">-</span></div>
+      <div class="row">B wins: <span id="resWinB">-</span></div>
+      <div class="row">Trades: <span id="resTrades">-</span></div>
+
+      <div style="margin-top:20px;">
+        <a href="simulate.html" class="btn">← Back to parameter setting</a>
+        <a href="loadout.html" class="btn">Back to weapon selection</a>
+        
+      </div>
+    </section>
+  </main>
+
+<script type="module">
+import { getState } from "./scripts/state.js";
+
+const s = getState();
+const r = s.simResult;
+
+if (!r) {
+  alert("No result found. Please run a simulation first.");
+} else {
+  const pct = (x) => (x * 100).toFixed(1) + "%";
+
+  // Win rates
+  document.getElementById("resTrials").textContent = r.trials ?? 0;
+  document.getElementById("resWinA").textContent = pct(r.winRateA || 0);
+  document.getElementById("resWinB").textContent = pct(r.winRateB || 0);
+
+  document.getElementById("resTrades").textContent = pct(r.tradeRate || 0);
+
+}
+</script>
+
+
+</body>
+</html>
