@@ -215,7 +215,7 @@ function simulateOneDuel(
 //  Monte Carlo main 
 // export function匯出函式，讓其他檔案可呼叫 runSimulation
 export function runSimulation(state) {
-  const trials = state.trials || 1000; 
+  const trials = Math.max(state.trials || 1000, 1000)
 
   const weaponA = getWeaponByName(state.weaponA); // UI存取的是字串，所以要透過武器名稱找出武器物件以及其的參數
   const weaponB = getWeaponByName(state.weaponB);
